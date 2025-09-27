@@ -1,32 +1,33 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { createEventDispatcher } from 'svelte';
+  import ThemeColorSelector from './ThemeColorSelector.svelte';
   const dispatch = createEventDispatcher();
 
-  export let palette = [];
-  export let onChange: (palette: any[]) => void;
+  export let theme = [];
+  export let onChange: (theme: any[]) => void;
 
   let newColor = '#ffffff';
 
   function addColor() {
-    palette = [...palette, newColor];
-    onChange?.(palette);
+    theme = [...theme, newColor];
+    onChange?.(theme);
     newColor = '#ffffff';
   }
 
   function updateColor(index: number, color: string) {
-    palette[index] = color;
-    palette = [...palette];
-    onChange?.(palette);
+    theme[index] = color;
+    theme = [...theme];
+    onChange?.(theme);
   }
 
   function removeColor(index: number) {
-    palette = palette.filter((_, i) => i !== index);
-    onChange?.(palette);
+    theme = theme.filter((_, i) => i !== index);
+    onChange?.(theme);
   }
 
   function handleOk() {
-    dispatch('ok', { palette });
+    dispatch('ok', { theme });
   }
 
   function handleCancel() {
@@ -34,17 +35,27 @@
   }
 </script>
 
+<!--
+PaletteEditor.svelte
+-------------------
+Now includes ThemeColorSelector for runtime theme color selection and preview.
+ThemeColorSelector uses window.getVscodeThemeColors API to enumerate all available theme color CSS variables.
+-->
+
 <div class="palette-editor">
-  <h2>Palette Editor</h2>
-  <div class="palette-list">
-    {#each palette as color, i}
-      <div class="palette-item">
-        <input type="color" bind:value={palette[i]} on:input={(e) => updateColor(i, e.target.value)} />
+  <h2>Theme Editor</h2>
+  <div class="theme-list">
+    {#each theme as color, i}
+      <div class="theme-item">
+        <input type="color" bind:value={theme[i]} on:input={(e) => updateColor(i, e.target.value)} />
         <span class="color-value">{color}</span>
         <button type="button" class="remove-btn" on:click={() => removeColor(i)}>Remove</button>
       </div>
     {/each}
   </div>
+
+  <!-- Theme color selector integration -->
+  <ThemeColorSelector />
   <div class="add-color">
     <input type="text" bind:value={newColor} class="color-input" placeholder="New Color" />
     <button type="button" class="add-btn" on:click={addColor}>Add Color</button>
@@ -57,13 +68,13 @@
 </div>
 
 <style>
-.palette-editor {
+.theme-editor {
   padding: 1rem;
 }
-.palette-list {
+.theme-list {
   margin-bottom: 1rem;
 }
-.palette-item {
+.theme-item {
   display: flex;
   align-items: center;
   gap: 1rem;

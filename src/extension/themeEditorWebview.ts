@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 
-export function activatePaletteEditorWebview(context: vscode.ExtensionContext) {
+export function activateThemeEditorWebview(context: vscode.ExtensionContext) {
   context.subscriptions.push(
-    vscode.commands.registerCommand('paletteEditor.open', () => {
+    vscode.commands.registerCommand('themeEditor.open', () => {
       const panel = vscode.window.createWebviewPanel(
-        'paletteEditor',
-        'Palette Editor',
+        'themeEditor',
+        'Theme Editor',
         vscode.ViewColumn.One,
         {
           enableScripts: true,
@@ -18,10 +18,10 @@ export function activatePaletteEditorWebview(context: vscode.ExtensionContext) {
       );
 
       const scriptUri = panel.webview.asWebviewUri(
-        vscode.Uri.file(path.join(context.extensionPath, 'dist', 'PaletteEditor.js'))
+        vscode.Uri.file(path.join(context.extensionPath, 'dist', 'ThemeEditor.js'))
       );
       const styleUri = panel.webview.asWebviewUri(
-        vscode.Uri.file(path.join(context.extensionPath, 'dist', 'PaletteEditor.css'))
+        vscode.Uri.file(path.join(context.extensionPath, 'dist', 'ThemeEditor.css'))
       );
 
       panel.webview.html = getWebviewContent(scriptUri, styleUri);
@@ -51,7 +51,7 @@ function getWebviewContent(scriptUri: vscode.Uri, styleUri: vscode.Uri) {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <link rel="stylesheet" href="${styleUri}">
-      <title>Palette Editor</title>
+      <title>Theme Editor</title>
     </head>
     <body>
       <div id="app"></div>

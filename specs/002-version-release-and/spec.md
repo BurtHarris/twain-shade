@@ -52,6 +52,8 @@ A user wants to release a new version of the extension and ensure it has a disti
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
+- **FR-010**: When building or launching from a feature branch, the system MUST automatically apply a pre-release suffix to the extension version.
+- **FR-009**: System SHOULD bump the extension version when preparing for debugging to ensure VS Code reloads the extension correctly.
 - **FR-008**: System SHOULD update the patch level on each build to aid debugging and traceability.
 - **FR-007**: When working in a feature branch, the system MUST enforce version numbers to include a pre-release suffix (e.g., 1.2.3-beta).
 - **FR-001**: System MUST allow users to initiate a version release for the extension.
