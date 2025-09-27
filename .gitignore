@@ -46,3 +46,6 @@ coverage/
 
 # Ignore extension dev/test artifacts
 *.code-workspace
+
+# Ignore local temporary captures used during debugging/tests
+.tmp/
