@@ -37,7 +37,7 @@
 **Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
 **Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
 **Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
+**Testing**: Jest (.js, .ts files); Vitest (.ts, .svelte files)
 **Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
 **Project Type**: [single/web/mobile - determines source structure]  
 **Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]  
@@ -158,50 +158,53 @@ directories captured above]
    - Preserve manual additions between markers
    - Update recent changes (keep last 3)
    - Keep under 150 lines for token efficiency
-   - Output to repository root
 
-**Output**: data-model.md, /contracts/*, failing tests, quickstart.md, agent-specific file
+   ### Source Code (repository root)
+   <!--
+      ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+      for this feature. Delete unused options and expand the chosen structure with
+      real paths (e.g., apps/admin, packages/something). The delivered plan must
+      not include Option labels.
+   -->
+   ```
+   # [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+   src/
+   ├── models/
+   ├── services/
+   ├── cli/
+   └── lib/
 
-## Phase 2: Task Planning Approach
-*This section describes what the /tasks command will do - DO NOT execute during /plan*
+   tests/
+   ├── contract/
+   ├── integration/
+   └── unit/
 
-**Task Generation Strategy**:
-- Load `.specify/templates/tasks-template.md` as base
-- Generate tasks from Phase 1 design docs (contracts, data model, quickstart)
-- Each contract → contract test task [P]
-- Each entity → model creation task [P] 
-- Each user story → integration test task
-- Implementation tasks to make tests pass
-
-**Ordering Strategy**:
-- TDD order: Tests before implementation 
-- Dependency order: Models before services before UI
-- Mark [P] for parallel execution (independent files)
-
-**Estimated Output**: 25-30 numbered, ordered tasks in tasks.md
-
-**IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
-
-## Phase 3+: Future Implementation
-*These phases are beyond the scope of the /plan command*
-
-**Phase 3**: Task execution (/tasks command creates tasks.md)  
-**Phase 4**: Implementation (execute tasks.md following constitutional principles)  
-**Phase 5**: Validation (run tests, execute quickstart.md, performance validation)
-
-## Complexity Tracking
-*Fill ONLY if Constitution Check has violations that must be justified*
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
-
-
-## Progress Tracking
-*This checklist is updated during execution flow*
 
 **Phase Status**:
+
+   # [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+   backend/
+   ├── src/
+   │   ├── models/
+   │   ├── services/
+   │   └── api/
+   └── tests/
+
+   frontend/
+   ├── src/
+   │   ├── components/
+   │   ├── pages/
+   │   └── services/
+   └── tests/
+
+   # [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
+   api/
+   └── [same as backend above]
+
+   ios/ or android/
+   └── [platform-specific structure: feature modules, UI flows, platform tests]
+   ```
+   All source and test files use TypeScript and modern JavaScript modules. `.mjs` and `.mts` files are forbidden.
 - [ ] Phase 0: Research complete (/plan command)
 - [ ] Phase 1: Design complete (/plan command)
 - [ ] Phase 2: Task planning complete (/plan command - describe approach only)

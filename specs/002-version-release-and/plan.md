@@ -36,14 +36,14 @@
 ## Technical Context
 **Branch Versioning**: When working in a feature branch, the build/launch process SHOULD automatically stamp the extension version with a pre-release suffix (e.g., 1.2.3-feature). This ensures correct identification and avoids confusion with production releases.
 **Note**: A version bump may be required to trigger proper extension debugging in VS Code. This is a known behavior with VS Code extension development.
-**Language/Version**: TypeScript, Svelte 5
+**Language/Version**: TypeScript, Svelte 5 (ESM-only, all files use .js extension)
 **Primary Dependencies**: Svelte 5, Vite
 **Storage**: N/A
-**Testing**: Vitest, Playwright (recommended)
+**Testing**: Vitest, Playwright (recommended), Jest (ESM, .js config and test files)
 **Target Platform**: VS Code Extension (desktop)
 **Project Type**: single (VS Code extension with webview)
 **Performance Goals**: Fast build and reload (<2s), smooth debugging
-**Constraints**: Must support F5 debugging in VS Code; Vite build integration with extension host and webview
+**Constraints**: Must support F5 debugging in VS Code; Vite build integration with extension host and webview; all config and test files use .js and ESM syntax
 **Scale/Scope**: Single extension, moderate codebase
 
 ## Constitution Check
@@ -63,6 +63,7 @@ specs/[###-feature]/
 ├── contracts/           # Phase 1 output (/plan command)
 └── tasks.md             # Phase 2 output (/tasks command - NOT created by /plan)
 ```
+All config and test files use the `.js` extension and ESM `import`/`export` syntax. No CommonJS or `.mjs` files are used.
 
 ### Source Code (repository root)
 <!--

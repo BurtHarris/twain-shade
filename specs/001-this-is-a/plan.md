@@ -20,14 +20,14 @@
 A modular TypeScript library and VS Code extension for managing color palettes that indicate window state (active/inactive) via title bar and status bar colors. Supports live preview, commit/cancel logic, and extensibility for other environments.
 
 ## Technical Context
-**Language/Version**: TypeScript (latest stable)  
+**Language/Version**: TypeScript (latest stable, ESM-only, all files use .js extension)  
 **Primary Dependencies**: VS Code Extension API, Node.js, (future: other host APIs)  
 **Storage**: VS Code settings, JSON file for palettes  
-**Testing**: VS Code Extension Dev Kit, Node.js unit tests  
+**Testing**: VS Code Extension Dev Kit, Node.js unit tests, Jest (ESM, .js config and test files)  
 **Target Platform**: VS Code (first), extensible to other desktop apps  
 **Project Type**: Single project, modular library + extension  
 **Performance Goals**: Instant UI feedback (<100ms), palette persistence  
-**Constraints**: High cohesion, low coupling, modularity, accessibility compliance  
+**Constraints**: High cohesion, low coupling, modularity, accessibility compliance; all config and test files use .js and ESM syntax  
 **Scale/Scope**: Single developer, extensible for future environments
 
 ## Constitution Check
@@ -50,6 +50,7 @@ specs/001-this-is-a/
 ├── contracts/
 └── tasks.md
 ```
+All config and test files use the `.js` extension and ESM `import`/`export` syntax. No CommonJS or `.mjs` files are used.
 
 ### Source Code (repository root)
 ```
