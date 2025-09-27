@@ -1,0 +1,2 @@
+On branch 002-version-release-and
+nothing to commit, working tree clean
