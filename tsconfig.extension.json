@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+  "rootDir": "./src/extension",
+  "outDir": "./dist/extension",
+  "types": ["node", "vscode", "svelte"],
+  "module": "nodenext",
+  "target": "es2020",
+  "verbatimModuleSyntax": false
+  },
+  "include": ["src/extension/**/*.ts", "src/extension/webview/**/*.svelte", "extension/index.ts"],
+  "exclude": ["src/main.ts"]
+}
