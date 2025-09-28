@@ -7,27 +7,10 @@
 **Status**: Draft  
 **Input**: User description: "version release and icon"
 
-## Clarifications
 
-### Session 2025-09-26
 
-- Q: What is the benefit of updating the patch level on build? → A: Helps debugging
-- Q: What versioning rule applies when working in a feature branch? → A: Version numbers should have a pre-release suffix
 
-* Q: What icon formats should be supported for the extension? → A: svg
 
-- Q: What should happen if a user tries to release a version that already exists or conflicts with an existing version? → A: Block the release and show an error
-
-* Q: What icon formats should be supported for the extension? → A: svg
-
-### Session 2025-09-27
-
-- Q: How is a version release initiated? → A: From the VS Code extension UI (webview) — user clicks a Release button inside VS Code
-- Q: Should publishing be automated (CI) or manual? → A: Manual for now, not ready to publish
-
-## Execution Flow (main)
-
-```
 1. Parse user description from Input
    → If empty: ERROR "No feature description provided"
 2. Extract key concepts from description
@@ -52,73 +35,84 @@
 
 ### Primary User Story
 
-A user wants to release a new version of the extension and ensure it has a distinct icon for identification. The user initiates the release by clicking a "Release" button in the extension's webview (Theme Editor).
+A user wants the extension to stamp builds with a distinct version when working on feature branches. The focus is on preparing artifacts locally (stamped version) without initiating any publish/push to registries.  In this project, some quirks of vscode development must be addressed.
 
 ### Acceptance Scenarios
 
-1. **Given** the extension is ready for release, **When** the user clicks the "Release" button in the extension's webview, **Then** the system should update the version and prepare release assets.
-2. **Given** the extension lacks a custom icon, **When** the user provides or selects an icon, **Then** the system should display the icon in the extension interface and package.
+1. **Given** a developer builds from a feature branch, **When** the build runs, **Then** the system MUST run the version-stamp step automatically, update the version locally (pre-release suffix) and write `dist/version-stamp.json` without requiring a manual command.
+2. **Given** a developer starts a debug/launch session (the more frequent scenario), **When** the launch runs, **Then** the system MUST stamp the version automatically, increment the per-launch counter, update `package.json` in-place, write `dist/version-stamp.json`, and produce a unique version that forces the VS Code extension host to reload the extension.
+
+### Acceptance Tests
+
+- Automated acceptance tests MUST exist for the Launch (debug) scenario and validate at minimum:
+   - stamping occurs automatically on launch,
+   - `dist/version-stamp.json` is written and the per-run counter increments,
+   - the stamped version is authoritative in `package.json` and the extension runtime reads the version from `package.json` at startup (tests should fail if these disagree).
+- Automated acceptance tests for Build/packaging are REQUIRED only if full VSIX packaging is implemented; otherwise build tests may be limited to verifying `dist/version-stamp.json` and the presence of the release manifest. VSIX support is optional for this feature.
 
 ### Edge Cases
+- How does the system handle version conflicts in local artifacts? The system should detect existing `dist` artifacts with identical versions and warn the developer before overwriting; publishing to registries remains manual and is out of scope for this feature.
 
-- What happens if the provided icon is not SVG? The system should reject the icon and prompt the user to provide an SVG file.
-- How does the system handle version conflicts or duplicate releases? The system should block the release and show an error message to the user.
+## Clarifications
+
+### Session 2025-09-28
+
+- Q: Which artifact/file is authoritative at runtime for the extension version? → A: `package.json` (runtime reads from package.json)
+
+- Q: Is CI stamping part of this feature? → A: No. CI stamping is out-of-scope for this feature; see `ISSUE_CI_VERSION_STAMP.md` for the follow-up work.
+
+- Q: Should stamping be triggered on Launch, Build, or both? → A: Deferred. Decision requires short research into Vite/Vitest hot-reload and package/version behavior; see `ISSUE_CI_VERSION_STAMP.md` for tracking.
 
 ## Requirements _(mandatory)_
 
 ### Functional Requirements
 
+- **FR-007**: When working in a feature branch, the system MUST enforce that version numbers include a pre-release suffix (e.g., `1.2.3-beta`).
+- **FR-008**: The system SHOULD update the patch level on each build to aid debugging and traceability.
+- **FR-009**: The system SHOULD bump the extension version when preparing for debugging to ensure VS Code reloads the extension correctly.
 - **FR-010**: When building or launching from a feature branch, the system MUST automatically apply a pre-release suffix to the extension version.
-- **FR-009**: System SHOULD bump the extension version when preparing for debugging to ensure VS Code reloads the extension correctly.
-- **FR-008**: System SHOULD update the patch level on each build to aid debugging and traceability.
-- **FR-007**: When working in a feature branch, the system MUST enforce version numbers to include a pre-release suffix (e.g., 1.2.3-beta).
-- **FR-001**: System MUST allow users to initiate a version release for the extension via the VS Code extension UI (webview). A prominent "Release" button in the webview MUST begin the release workflow.
-- **FR-002**: System MUST update the extension's version metadata upon release.
-- **FR-003**: System MUST allow users to provide or select a custom icon for the extension.
-- **FR-004**: System MUST display the selected icon in the extension interface and package.
-- **FR-005**: System MUST validate that an icon is provided and that it uses a supported image format (e.g., svg, png, ico) before accepting it.
-- **FR-006**: System MUST prevent duplicate or conflicting version releases by blocking the release and showing an error message.
-- **FR-011**: System MUST NOT automatically publish releases to the Marketplace or other registries. After the release workflow prepares artifacts, publishing is a manual, explicit step performed by the user (or an operator) outside the automated release action.
+- **FR-011**: On feature branches the version MUST include a prerelease identifier derived from the branch name (sanitized to be semver-compatible). Example: branch `feature/theme-editor` on base version `1.2.3` -> `1.2.4-feature-theme-editor.<shortsha>`.
+ - **FR-012**: DECISION PENDING — The trigger for the version-stamping step (Build vs Launch) requires a short research task to determine the correct default behavior given Vite/Vitest hot-reload and extension-reload quirks. Until that decision is made, implementations SHOULD avoid hard-wiring automatic `package.json` mutations into CI or irreversible build steps. Acceptance tests MUST cover the Launch scenario. CI integration is deferred and tracked in `ISSUE_CI_VERSION_STAMP.md`.
+ - **FR-013**: To support repeated debugging sessions and VS Code extension reload quirks, each debug/build invocation on a feature branch MUST produce a unique version string by including a small per-run increment or counter after the branch-derived prerelease identifier (e.g., `1.2.4-feature-theme-editor.1`, then `.2` for subsequent debug starts). A timestamp-based suffix (e.g., `1.2.4-feature-name.20250928T153000`) is an acceptable alternative when a persistent counter is impractical.
+
+- **FR-002**: System MUST update the extension's version metadata when stamping/building locally.
+- **FR-006**: System SHOULD warn developers when local `dist/` artifacts with the same version exist and require explicit confirmation before overwriting.
+
+- **FR-011 (safety)**: System MUST NOT automatically publish to registries as part of this feature; publishing remains manual and out-of-scope.
+
+Clarification: At runtime the extension reads its authoritative version from `package.json`. Therefore stamping operations MUST update `package.json` in-place (with a safe backup/atomic write policy). Other artifacts such as `dist/version-stamp.json` or `dist/release-manifest.json` are tooling artifacts and must not be treated as the runtime authoritative source.
 
 ### Key Entities
 
 - **Extension Version**: Represents the release version of the extension, including metadata such as version number, release date, and changelog.
-- **Extension Icon**: Represents the visual identifier for the extension, including file format, size, and usage locations.
 
 ---
 
-## Release workflow (artifact preparation and manual publish)
+## Artifact preparation (local packaging)
 
-This subsection describes the steps the system performs when a user initiates a release from the extension webview, and the manual actions required to publish the prepared artifacts.
+This subsection describes the local packaging steps the system should perform during a developer-initiated packaging flow (not a webview-initiated release). Publishing to registries is explicitly out of scope for this feature.
 
 1. Prepare artifacts (automated):
-   - The webview Release button triggers the release workflow which:
-     - Generates or updates `package.json` version metadata with the new version string (including pre-release suffix when on feature branches).
-     - Builds webview assets and collects extension packaging files into a `dist/` release directory.
-   - Validates the selected icon is a supported image format (e.g., svg, png, ico) and copies it into the release assets.
-     - Produces a release manifest file (e.g., `dist/release-manifest.json`) containing version, changelog pointer, and artifact paths.
+   - The project's build scripts will invoke the version-stamp step automatically as part of the local build (for example, `npm run build` should run stamping as a prebuild step). CI integration is deferred.
+      - The stamping step updates `package.json` version metadata with the new version string (including pre-release suffix when on feature branches) and writes `dist/version-stamp.json`.
+      - The standard build then produces webview assets and collects extension packaging files into a `dist/` directory.
+   - Produces a local manifest file (e.g., `dist/release-manifest.json`) containing version, changelog pointer, and artifact paths. Implementation of the manifest file is recommended but optional for an initial iteration. Full VSIX packaging is optional for this feature; if implemented, build tests should verify the VSIX contains the stamped version and release manifest.
 
 2. Validate artifacts (automated checks):
    - Run local validation: schema checks on manifest, icon SVG validation, checksum verification of artifacts.
-   - If validation fails: surface errors in the webview and do NOT mark the release as prepared.
+   - If validation fails: surface errors to the developer and do NOT overwrite `dist/` artifacts.
 
-3. Manual publish (explicit operator action):
-   - After artifacts are prepared and validated, the webview must present a clear "Artifacts prepared" state with a link/button to open the `dist/` folder in the OS file explorer.
-   - The user/operator is responsible for manually publishing the prepared artifacts (for example: using `vsce publish`, Marketplace UI, or other registry workflows). The system MUST NOT automatically publish to the Marketplace or any registry.
-   - Provide a short publish checklist in the webview and in `dist/README.md`:
-     - Confirm version is correct and unique
-     - Confirm changelog and release notes included
-     - Verify icon renders correctly in preview
-     - Run final smoke test locally (reload VS Code with extension)
+3. Documentation and checklist (developer action):
+   - Provide a short publish checklist in `dist/README.md` and `docs/versioning.md` recommending manual publication via `vsce` or other tools.
 
-4. Post-publish (manual confirmation):
-   - Once the operator completes publication, they MUST confirm the publish in the webview which records the publish metadata (date, who published, registry URL) to the release manifest.
 
-Acceptance criteria for the workflow:
 
-- Artifacts are generated to `dist/` and pass validation before any publish step is allowed.
-- The webview shows explicit prepared/validated state and does not automatically trigger publish.
-- Manual publish steps are documented and discoverable in the webview and `dist/README.md`.
+Acceptance criteria for artifact preparation:
+
+- `dist/version-stamp.json` is written when stamping is run.
+- The system warns before overwriting existing `dist/` artifacts with the same version.
+- Automated acceptance tests for the Launch scenario exist and pass.
+- If VSIX support is implemented, packaged artifacts (VSIX) MUST include the stamped version and the release manifest; VSIX support is optional for this feature.
 
 ---
 
@@ -155,28 +149,15 @@ _Updated by main() during processing_
 - [ ] Entities identified
 - [ ] Review checklist passed
 
+Note: Functional Requirements require additional review and adjustment. The current FR list includes contradictions and rewording is needed to align launch vs build behaviors, authoritative version source, and per-run increment rules. Stop here until FRs are revised.
+
 ---
 
 - [ ] No implementation details (languages, frameworks, APIs)
 
 ## Tooling & docs changes on this branch
 
-Summary of infrastructure and documentation edits implemented on `002-version-release-and` to support version stamping, testing, and contributor guidance:
+Tooling summary (high level):
 
-- Scripts added:
-   - `version-stamp` (`node ./scripts/version-stamp.js`) — apply prerelease suffixes on feature branches and write `dist/version-stamp.json`.
-   - `test` -> `vitest run` and `test:ci` for CI-friendly run.
-   - `release:prepare` -> `standard-version` to generate changelog and bump versions (manual publish still required).
-   - `prepare` -> `husky install` to ensure commit hooks are installed.
-
-- Dev dependencies added: `vitest`, `@vitest/ui`, `standard-version`, `husky`, `@commitlint/*`, `@testing-library/svelte`, `@testing-library/jest-dom`, plus a couple of build helpers. Jest-related packages were removed and tests now run under Vitest.
-
-- Files added/updated:
-   - `scripts/version-stamp.js` — lightweight stamp script.
-   - `docs/versioning.md` — how and why to run the stamp and release prepare steps.
-   - `tests/TESTING_GUIDE.md`, `Svelte_Vitest_Testing_Investigation.md` and related docs updated to prefer Vitest and document the `@testing-library/jest-dom` matcher setup.
-   - `CHANGELOG.md` updated with an Unreleased note describing the migration to Vitest.
-
-Notes:
-- These changes are intentionally conservative: publishing remains manual, stamp script mutates `package.json` only on feature branches, and `standard-version` is provided for changelog automation but not automatic publishing.
-- A follow-up issue `ISSUE_CI_VERSION_STAMP.md` defers adding a CI job to run stamping; CI automation is optional and deferred.
+- The feature requires a developer-facing version-stamping step that runs as part of common developer workflows (launch/build) to produce stamped local artifacts and update the runtime `package.json` with a backed-up atomic write.
+- Implementation details (script names, exact dev-dependencies, and CI wiring) are intentionally kept out of this spec and moved to the implementation plan (`plan.md`) so the spec remains focused on outcomes. See `plan.md` for the moved details and follow-up issues.
