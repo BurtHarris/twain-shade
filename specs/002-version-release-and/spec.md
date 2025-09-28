@@ -57,11 +57,27 @@ A user wants the extension to stamp builds with a distinct version when working 
 
 ### Session 2025-09-28
 
-- Q: Which artifact/file is authoritative at runtime for the extension version? → A: `package.json` (runtime reads from package.json)
+The team accepted the implementation defaults recommended in the research notes. Decisions below were agreed and recorded so implementers can proceed without additional approval.
 
-- Q: Is CI stamping part of this feature? → A: No. CI stamping is out-of-scope for this feature; see `ISSUE_CI_VERSION_STAMP.md` for the follow-up work.
+- Q: Which artifact/file is authoritative at runtime for the extension version?
+   - A: `package.json` (runtime reads from package.json). Stamping MUST update `package.json` in-place using an atomic write with a timestamped backup.
 
-- Q: Should stamping be triggered on Launch, Build, or both? → A: Deferred. Decision requires short research into Vite/Vitest hot-reload and package/version behavior; see `ISSUE_CI_VERSION_STAMP.md` for tracking.
+- Q: Is CI stamping part of this feature?
+   - A: No. CI stamping is out-of-scope for this feature and tracked in `ISSUE_CI_VERSION_STAMP.md`. The implementation SHOULD accept deterministic overrides so CI can stamp deterministically later.
+
+- Q: Should stamping be triggered on Launch, Build, or both?
+   - A: Both Launch and Build. Stamping will run automatically for developer workflows on both Launch (debug) and Build (prebuild) to keep local debug and packaging behavior consistent.
+
+- Q: Which uniqueness token should be used by default?
+   - A: Git commit short SHA (7 chars) is the default token. The implementation MUST allow overrides via CLI flag or environment variable (for CI deterministic stamps).
+
+- Q: When a stamped version already exists in `dist/` or `package.json`, what should the script do?
+   - A: Warn and skip by default; allow a forced overwrite via an explicit `--apply-forced` or `--force` flag. This avoids accidental overwrites while allowing deliberate forced stamping.
+
+- Q: Backup policy for `package.json`:
+   - A: Backups will be stored under a hidden directory `.version-stamp/backups/` in the repository root, with timestamped filenames (e.g., `.version-stamp/backups/package.json.20250928T153045.bak`). The directory is easy to exclude from VSIX and keeps the repo root tidy.
+
+These defaults will be used for the initial implementation and unit/integration tests. Implementations must still provide `--dry-run` behavior as the default in developer flows and require `--apply` (or an npm script that calls apply) for the in-place mutation.
 
 ## Requirements _(mandatory)_
 
@@ -74,6 +90,9 @@ A user wants the extension to stamp builds with a distinct version when working 
 - **FR-011**: On feature branches the version MUST include a prerelease identifier derived from the branch name (sanitized to be semver-compatible). Example: branch `feature/theme-editor` on base version `1.2.3` -> `1.2.4-feature-theme-editor.<shortsha>`.
  - **FR-012**: DECISION PENDING — The trigger for the version-stamping step (Build vs Launch) requires a short research task to determine the correct default behavior given Vite/Vitest hot-reload and extension-reload quirks. Until that decision is made, implementations SHOULD avoid hard-wiring automatic `package.json` mutations into CI or irreversible build steps. Acceptance tests MUST cover the Launch scenario. CI integration is deferred and tracked in `ISSUE_CI_VERSION_STAMP.md`.
  - **FR-013**: To support repeated debugging sessions and VS Code extension reload quirks, each debug/build invocation on a feature branch MUST produce a unique version string by including a branch-derived prerelease identifier and a short uniqueness token. Implementations SHOULD prefer using the Git commit short SHA (e.g., `1.2.4-feature-theme-editor.a1b2c3d`) as the default token for both Launch and Build to ensure reproducibility. Using a persistent per-run numeric counter is OPTIONAL and only recommended if the team explicitly requires monotonic counters; if used it must be configurable and recorded in the stamp store.
+
+ - **FR-012 (updated)**: The system MUST run stamping automatically on both Build and Launch in developer workflows. Implementations SHOULD default to `--dry-run` for safety and require an explicit `--apply` to perform an in-place mutation of `package.json`.
+ - **FR-013 (updated)**: The system MUST include a branch-derived prerelease identifier and a short uniqueness token in every stamped version. The default uniqueness token is the Git commit short SHA (7 chars). The implementation MUST support overriding the token via CLI flag or environment variable to enable deterministic CI stamping.
 
 - **FR-002**: System MUST update the extension's version metadata when stamping/building locally.
 - **FR-006**: System SHOULD warn developers when local `dist/` artifacts with the same version exist and require explicit confirmation before overwriting.

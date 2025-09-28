@@ -33,34 +33,36 @@
 
 ## Summary
 
-This implementation plan covers automatic version-stamping for feature branches in the twain-shade VS Code extension. The goal is to compute deterministic, semver-compatible pre-release versions derived from the current git branch and commit (sanitized branch name + short commit SHA), mutate `package.json` atomically with a timestamped backup, emit an auditable manifest (`dist/version-stamp.json`), and integrate stamping safely into local dev (`--dry-run` default) and CI packaging workflows. The plan uses the `semver` npm package for version arithmetic and prioritizes reproducibility and auditability.
+This feature adds a local version-stamping step for developer workflows (Launch and Build) that applies a branch-derived prerelease identifier and a short uniqueness token to `package.json` and emits a tooling manifest `dist/version-stamp.json`.
+
+Primary requirement: automatically stamp local builds on feature branches so debug and local packaging produce unique, traceable versions without publishing to registries.
+
+Technical approach: implement a small Node.js CLI under `scripts/version-stamp.js` that uses the `semver` package for version arithmetic, sanitizes branch names into prerelease identifiers, reads the Git commit short SHA as the default token, performs an atomic update of `package.json` with timestamped backups under `.version-stamp/backups/`, and emits `dist/version-stamp.json`. The CLI will default to `--dry-run` and support `--apply`, `--force`, and `--token` flags for overrides.
 
 ## Technical Context
 
-**Language/Version**: TypeScript (Node.js tooling), project uses modern Node (>=18 recommended).  
-**Primary Dependencies**: Vite, Svelte 5, `semver`, Vitest, `@tomjs/vite-plugin-vscode`, `@tomjs/vscode`.  
-**Storage**: File system for `package.json` and optional `dist/version-stamp.json`.  
-**Testing**: Vitest (unit + integration).  
-**Target Platform**: VS Code extension (extension host + webview), cross-platform (Windows, macOS, Linux).  
-**Module System**: ESM (`type: "module"` in `package.json`).  
-**Project Type**: Single VS Code extension with a Svelte-driven webview.  
-**Performance Goals**: Non-critical; stamping must be fast (ms-level) and non-blocking for dev workflows.  
-**Constraints**: Atomic file writes (handle Windows rename semantics), git presence for commit token, preserve clean git state unless `--force` used.  
-**Scale/Scope**: Single-repo extension project.
-
-### Semver decision
-
-- Adopt `semver` npm package as the canonical library for parsing and mutating semantic versions in the stamping implementation. See `research.md` (Semver tooling) for usage notes.
-
-### VS Code / vsce integration
-
-- See `research.md` -> "VS Code / vsce integration recommendations" for where to run stamping relative to packaging, `.vscodeignore` suggestions, and debugging notes (dry-run default, opt-in apply for launch).
+**Language/Version**: Node.js (ESM) — repository enforces ESM-only via constitution
+**Primary Dependencies**: `semver` (already added to dependencies), Node.js standard fs modules, optional `execa`/`simple-git` for git interactions (implementation may use `child_process` to call `git rev-parse --short HEAD`)
+**Storage**: Local file writes only (package.json, `.version-stamp/backups/`, `dist/version-stamp.json`)
+**Testing**: Vitest (existing test setup in repository) for unit and integration tests; VS Code extension integration tests for runtime validation of stamped version where applicable
+**Target Platform**: Developer machines (Windows, macOS, Linux) — take care with atomic write semantics on Windows
+**Module System**: ESM-only per constitution (implement CLI as `.js` ESM file; ensure `package.json` contains "type": "module")
+**Project Type**: Single VS Code extension project (source under `src/`, webview under `src/extension/webview`)
+**Performance Goals**: Minimal — stamping is a fast local file operation; prioritise correctness and atomicity over speed
+**Constraints**: Follow constitution: CLI interface, TDD, ESM-only. Avoid adding heavy dependencies; prefer small, audited packages.
 
 ## Constitution Check
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-[Gates determined based on constitution file]
+Checked against `.specify/memory/constitution.md` (version 2.4.0). Relevant gates:
+
+- Library-First: stamping logic will be implemented as a small library (exported functions) with a thin CLI wrapper to satisfy the Library-First and CLI Interface principles.
+- CLI Interface: CLI will accept JSON and human-readable output; implement `--json` and `--dry-run` output modes.
+- Test Discipline: Unit tests (Vitest) will be added for sanitizer, semantic version bump logic, git token retrieval, and file backup behavior.
+- Module System: Implementation will be ESM-only; use `.js` ESM modules and keep file formats consistent.
+
+Result: PASS — The proposed design adheres to constitutional constraints. No violations detected.
 
 ## Project Structure
 
@@ -121,7 +123,8 @@ ios/ or android/
 └── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
 
-**Structure Decision**: Keep feature artifacts colocated under `specs/002-version-release-and/`. Implementation code will live under `scripts/` (e.g., `scripts/version-stamp.js`) with small helpers under `lib/` (e.g., `lib/sanitize-branch.js`). Tests for stamping will be under `tests/unit/` and `tests/integration/` using Vitest.
+**Structure Decision**: [Document the selected structure and reference the real
+directories captured above]
 
 ## Phase 0: Outline & Research
 
@@ -145,6 +148,8 @@ ios/ or android/
    - Alternatives considered: [what else evaluated]
 
 **Output**: research.md with all NEEDS CLARIFICATION resolved
+
+Current status: `research.md` exists and contains SemVer recommendations, VS Code/vsce packaging notes, CI guidance, and rationale for choosing Git short SHA as the default uniqueness token. Phase 0 is marked complete for this feature.
 
 ## Phase 1: Design & Contracts
 
@@ -179,6 +184,13 @@ _Prerequisites: research.md complete_
    - Output to repository root
 
 **Output**: data-model.md, /contracts/\*, failing tests, quickstart.md, agent-specific file
+
+Current status: Phase 1 artifacts exist. `data-model.md`, `quickstart.md`, and `contracts/` are present. `data-model.md` defines the canonical stamping manifest schema. `quickstart.md` documents developer workflow. Contracts directory contains CLI contract and programmatic API outline.
+
+Next Phase 1 actions (to be executed now as part of /plan):
+ - Ensure `data-model.md` aligns with `spec.md` clarifications (sanitized branch, commitShortSha, timestamp, packageJsonBackup)
+ - Generate failing contract test placeholders under `contracts/tests/` (one per contract) so test scaffolding exists and will fail until implementation is completed
+ - Agent context update already executed to register this plan's tech choices with dev agents
 
 ## Phase 2: Task Planning Approach
 
@@ -226,27 +238,19 @@ _This checklist is updated during execution flow_
 
 **Phase Status**:
 
-- [ ] Phase 0: Research complete (/plan command)
-- [ ] Phase 1: Design complete (/plan command)
-- [ ] Phase 2: Task planning complete (/plan command - describe approach only)
-- [ ] Phase 3: Tasks generated (/tasks command)
+- [x] Phase 0: Research complete
+- [x] Phase 1: Design complete (artifacts present)
+- [ ] Phase 2: Task planning described (to be generated by /tasks)
+- [ ] Phase 3: Tasks generated
 - [ ] Phase 4: Implementation complete
 - [ ] Phase 5: Validation passed
 
 **Gate Status**:
 
-- [ ] Initial Constitution Check: PASS
-- [ ] Post-Design Constitution Check: PASS
-- [ ] All NEEDS CLARIFICATION resolved
+- [x] Initial Constitution Check: PASS
+- [x] Post-Design Constitution Check: PASS
+- [x] All NEEDS CLARIFICATION resolved
 - [ ] Complexity deviations documented
-
-## Artifacts generated by this run
-
-- `E:\twain-shade\specs\002-version-release-and\spec.md` (feature spec with clarifications)
-- `E:\twain-shade\specs\002-version-release-and\research.md` (Phase 0 findings; semver notes added)
-- `E:\twain-shade\specs\002-version-release-and\data-model.md` (stamp metadata schema)
-- `E:\twain-shade\specs\002-version-release-and\plan.md` (this file)
-- `E:\twain-shade\specs\002-version-release-and\tasks.md` (task list created)
 
 ---
 
