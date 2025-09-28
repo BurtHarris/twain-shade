@@ -40,7 +40,7 @@ coverage/
 .prettier*
 
 # Ignore compiled files
-*.js
+dist/*.js
 *.jsx
 *.map
 *.cjs
