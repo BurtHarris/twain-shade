@@ -3,10 +3,13 @@
 
 All notable changes to this project will be documented in this file.
 
+<<<<<<< Updated upstream
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Why? Helps in proper [Semantic Versioning](https://semver.org/).
 
 All notable changes to this project will be documented in this file.
 
+=======
+>>>>>>> Stashed changes
 Based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/). Why?  Helps in proper [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
