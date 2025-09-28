@@ -40,14 +40,14 @@ A user wants the extension to stamp builds with a distinct version when working 
 ### Acceptance Scenarios
 
 1. **Given** a developer builds from a feature branch, **When** the build runs, **Then** the system MUST run the version-stamp step automatically, update the version locally (pre-release suffix) and write `dist/version-stamp.json` without requiring a manual command.
-2. **Given** a developer starts a debug/launch session (the more frequent scenario), **When** the launch runs, **Then** the system MUST stamp the version automatically, increment the per-launch counter, update `package.json` in-place, write `dist/version-stamp.json`, and produce a unique version that forces the VS Code extension host to reload the extension.
+2. **Given** a developer starts a debug/launch session (the more frequent scenario), **When** the launch runs, **Then** the system MUST stamp the version automatically, update `package.json` in-place, produce a unique version that forces the VS Code extension host to reload the extension, and optionally write `dist/version-stamp.json` for tooling/debug visibility.
 
 ### Acceptance Tests
 
 - Automated acceptance tests MUST exist for the Launch (debug) scenario and validate at minimum:
    - stamping occurs automatically on launch,
-   - `dist/version-stamp.json` is written and the per-run counter increments,
-   - the stamped version is authoritative in `package.json` and the extension runtime reads the version from `package.json` at startup (tests should fail if these disagree).
+   - the stamped version is authoritative in `package.json` and the extension runtime reads the version from `package.json` at startup (tests should fail if these disagree),
+   - if a stamp store is used, `dist/version-stamp.json` is written and contains stamp metadata.
 - Automated acceptance tests for Build/packaging are REQUIRED only if full VSIX packaging is implemented; otherwise build tests may be limited to verifying `dist/version-stamp.json` and the presence of the release manifest. VSIX support is optional for this feature.
 
 ### Edge Cases
@@ -73,7 +73,7 @@ A user wants the extension to stamp builds with a distinct version when working 
 - **FR-010**: When building or launching from a feature branch, the system MUST automatically apply a pre-release suffix to the extension version.
 - **FR-011**: On feature branches the version MUST include a prerelease identifier derived from the branch name (sanitized to be semver-compatible). Example: branch `feature/theme-editor` on base version `1.2.3` -> `1.2.4-feature-theme-editor.<shortsha>`.
  - **FR-012**: DECISION PENDING — The trigger for the version-stamping step (Build vs Launch) requires a short research task to determine the correct default behavior given Vite/Vitest hot-reload and extension-reload quirks. Until that decision is made, implementations SHOULD avoid hard-wiring automatic `package.json` mutations into CI or irreversible build steps. Acceptance tests MUST cover the Launch scenario. CI integration is deferred and tracked in `ISSUE_CI_VERSION_STAMP.md`.
- - **FR-013**: To support repeated debugging sessions and VS Code extension reload quirks, each debug/build invocation on a feature branch MUST produce a unique version string by including a small per-run increment or counter after the branch-derived prerelease identifier (e.g., `1.2.4-feature-theme-editor.1`, then `.2` for subsequent debug starts). A timestamp-based suffix (e.g., `1.2.4-feature-name.20250928T153000`) is an acceptable alternative when a persistent counter is impractical.
+ - **FR-013**: To support repeated debugging sessions and VS Code extension reload quirks, each debug/build invocation on a feature branch MUST produce a unique version string by including a branch-derived prerelease identifier and a short uniqueness token. Implementations SHOULD prefer using the Git commit short SHA (e.g., `1.2.4-feature-theme-editor.a1b2c3d`) as the default token for both Launch and Build to ensure reproducibility. Using a persistent per-run numeric counter is OPTIONAL and only recommended if the team explicitly requires monotonic counters; if used it must be configurable and recorded in the stamp store.
 
 - **FR-002**: System MUST update the extension's version metadata when stamping/building locally.
 - **FR-006**: System SHOULD warn developers when local `dist/` artifacts with the same version exist and require explicit confirmation before overwriting.

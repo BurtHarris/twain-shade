@@ -1,91 +1,253 @@
-# Implementation Plan (reset)
+# Implementation Plan: [FEATURE]
 
-This plan file was reset on 2025-09-28 to prepare for a fresh planning pass.
+**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
+**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
-Next steps:
+## Execution Flow (/plan command scope)
 
-- Re-run the /plan workflow to repopulate research, data-model, and design artifacts.
-- Keep Phase 0 & Phase 1 outputs focused and minimal: research.md and data-model.md should only contain facts required for design choices.
-- Do NOT carry forward implementation details from prior iterations; prefer references to decisions in the spec.
+```
+1. Load feature spec from Input path
+   → If not found: ERROR "No feature spec at {path}"
+2. Fill Technical Context (scan for NEEDS CLARIFICATION)
+   → Detect Project Type from file system structure or context (web=frontend+backend, mobile=app+api)
+   → Set Structure Decision based on project type
+3. Fill the Constitution Check section based on the content of the constitution document.
+4. Evaluate Constitution Check section below
+   → If violations exist: Document in Complexity Tracking
+   → If no justification possible: ERROR "Simplify approach first"
+   → Update Progress Tracking: Initial Constitution Check
+5. Execute Phase 0 → research.md
+   → If NEEDS CLARIFICATION remain: ERROR "Resolve unknowns"
+6. Execute Phase 1 → contracts, data-model.md, quickstart.md, agent-specific template file (e.g., `CLAUDE.md` for Claude Code, `.github/copilot-instructions.md` for GitHub Copilot, `GEMINI.md` for Gemini CLI, `QWEN.md` for Qwen Code or `AGENTS.md` for opencode).
+7. Re-evaluate Constitution Check section
+   → If new violations: Refactor design, return to Phase 1
+   → Update Progress Tracking: Post-Design Constitution Check
+8. Plan Phase 2 → Describe task generation approach (DO NOT create tasks.md)
+9. STOP - Ready for /tasks command
+```
 
-Placeholders (to be created by the workflow):
+**IMPORTANT**: The /plan command STOPS at step 7. Phases 2-4 are executed by other commands:
 
+- Phase 2: /tasks command creates tasks.md
+- Phase 3-4: Implementation execution (manual or via tools)
 
- research.md — Phase 0 findings (TODO: redo research; current file contains useful notes but must be refreshed)
- data-model.md — entities and contracts (see `data-model.md`)
- contracts/ — API/manifest contracts produced during Phase 1
+## Summary
 
- Removed placeholder files:
+This implementation plan covers automatic version-stamping for feature branches in the twain-shade VS Code extension. The goal is to compute deterministic, semver-compatible pre-release versions derived from the current git branch and commit (sanitized branch name + short commit SHA), mutate `package.json` atomically with a timestamped backup, emit an auditable manifest (`dist/version-stamp.json`), and integrate stamping safely into local dev (`--dry-run` default) and CI packaging workflows. The plan uses the `semver` npm package for version arithmetic and prioritizes reproducibility and auditability.
 
- `quickstart.md` — removed (will be recreated by plan workflow when needed)
- `tasks.md` — removed (use issue tracker or the plan's tasks artifact)
+## Technical Context
 
-When you're ready I can re-run the plan step and generate Phase 0 outputs.
+**Language/Version**: TypeScript (Node.js tooling), project uses modern Node (>=18 recommended).  
+**Primary Dependencies**: Vite, Svelte 5, `semver`, Vitest, `@tomjs/vite-plugin-vscode`, `@tomjs/vscode`.  
+**Storage**: File system for `package.json` and optional `dist/version-stamp.json`.  
+**Testing**: Vitest (unit + integration).  
+**Target Platform**: VS Code extension (extension host + webview), cross-platform (Windows, macOS, Linux).  
+**Module System**: ESM (`type: "module"` in `package.json`).  
+**Project Type**: Single VS Code extension with a Svelte-driven webview.  
+**Performance Goals**: Non-critical; stamping must be fast (ms-level) and non-blocking for dev workflows.  
+**Constraints**: Atomic file writes (handle Windows rename semantics), git presence for commit token, preserve clean git state unless `--force` used.  
+**Scale/Scope**: Single-repo extension project.
 
+### Semver decision
 
-## Notes moved from spec.md (2025-09-28)
+- Adopt `semver` npm package as the canonical library for parsing and mutating semantic versions in the stamping implementation. See `research.md` (Semver tooling) for usage notes.
 
-The following notes were moved from `specs/002-version-release-and/spec.md` to keep design decisions centralized in the plan for implementation work.
+### VS Code / vsce integration
 
-- Automatic stamping: stamping MUST run automatically on local `npm run build` and on debug launches that trigger packaging.
-- Authoritative source: the repository root `package.json` `version` field is the authoritative runtime version.
-- Branch-derived prerelease: feature-branch stamps MUST include a prerelease identifier derived from a sanitized branch name (lowercase, letters/digits/.- only).
-- Per-run uniqueness for Launch: Launch (debug) stamping MUST append a per-run unique suffix. The implementation MUST persist per-branch counters or an equivalent persisted store so each launch produces a unique increment. The storage location/format is configurable (implementation detail).
-- Build uniqueness rules: Packaging/build runs intended for artifacts MUST use a reproducible identifier (commit-short-SHA) rather than the per-run counter.
-- Merge-to-master for higher-level versioning: major/minor/patch bumps, changelog generation, and official release automation occur when a branch is merged into `master`.
-- Persistence and metadata: stamp metadata (baseVersion, stampedVersion, branch, sanitizedBranch, counter or identifier used, commitShortSha, timestamp, origin) MUST be recorded in a persisted store; the store location and format are configurable.
-- package.json mutation and backup: stamping MUTATES `package.json`'s `version` field in-place locally for developer convenience. The stamping tool MUST create a safe backup (timestamped `.bak` or similar) and use atomic writes to avoid partial writes.
-- Tests and acceptance tests: unit tests and an acceptance test for Launch stamping MUST be added (Vitest). The acceptance test should simulate a Launch stamp, assert the stamped version format, and verify the persisted metadata.
-- CI policy: CI stamping is optional; if enabled it MUST use the reproducible commit-sha behavior, not the per-run counter.
-- Error handling: If stamping fails (git errors, file I/O), the tool MUST fail fast with a clear message and avoid leaving `package.json` partially written.
+- See `research.md` -> "VS Code / vsce integration recommendations" for where to run stamping relative to packaging, `.vscodeignore` suggestions, and debugging notes (dry-run default, opt-in apply for launch).
 
+## Constitution Check
 
-## Clarifications moved from spec.md (2025-09-28)
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-### Session 2025-09-26
+[Gates determined based on constitution file]
 
-- Q: What is the benefit of updating the patch level on build? → A: Helps debugging
-- Q: What versioning rule applies when working in a feature branch? → A: Version numbers should have a pre-release suffix
+## Project Structure
 
-- Q: What should happen if a user tries to release a version that already exists or conflicts with an existing version? → A: Block the release and show an error
+### Documentation (this feature)
 
-### Session 2025-09-27
+```
+specs/[###-feature]/
+├── plan.md              # This file (/plan command output)
+├── research.md          # Phase 0 output (/plan command)
+├── data-model.md        # Phase 1 output (/plan command)
+├── quickstart.md        # Phase 1 output (/plan command)
+├── contracts/           # Phase 1 output (/plan command)
+└── tasks.md             # Phase 2 output (/tasks command - NOT created by /plan)
+```
 
+### Source Code (repository root)
 
-### Session 2025-09-28
+<!--
+  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+  for this feature. Delete unused options and expand the chosen structure with
+  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  not include Option labels.
+-->
 
-- Q: Which per-run uniqueness strategy should we use for feature-branch prerelease versions? → A: Persist a small numeric counter in `dist/version-stamp.json` and increment per stamp (Option A).
-- Q: Which packaging approach should we use for stamping (package.json mutation vs packaging-only manifest)? → A: Keep current behavior: mutate `package.json` in-place when stamping (Option A).
-- Note: There are two distinct stamping scenarios: a) "launch" (developer starts a debug/launch session in VS Code) and b) "build" (developer runs `npm run build` or packaging/prepare step). Debugging launches are the more frequent event and should prioritize per-run uniqueness to force the extension host to reload. Build/packaging runs also require stamping but may tolerate a different suffix strategy if desired (see FR-013).
-- Q: Which source should the extension runtime use as authoritative for the stamped version? → A: Use `package.json`'s `version` field as authoritative (Option A).
+```
+# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+src/
+├── models/
+├── services/
+├── cli/
+└── lib/
 
-- **FR-013**: To support repeated debugging sessions and VS Code extension reload quirks, the spec distinguishes two stamping behaviors:
-	- Launch (debug): Each debug/launch invocation on a feature branch MUST produce a unique version string by incrementing a per-run counter stored in `dist/version-stamp.json` and appending it after the branch-derived prerelease identifier. Example: `1.2.4-feature-theme-editor.1`, then `1.2.4-feature-theme-editor.2` for subsequent debug starts.
-	- Build (packaging): When producing build/package artifacts, the stamping step MUST also produce a unique version but MAY use a commit-derived suffix (short SHA) or the current counter value; implementers should prefer the commit-derived suffix for reproducible builds unless the team requires monotonically increasing package versions.
+tests/
+├── contract/
+├── integration/
+└── unit/
 
-- To guarantee uniqueness across debug runs, the stamping implementation MUST persist a small numeric counter (for example inside `dist/version-stamp.json`) and increment it on each launch-stamp for the same branch/base version; the counter value is appended after the branch-derived prerelease identifier.
-- For build/packaging stamps, the implementation MAY use the commit short SHA instead of incrementing the counter to improve reproducibility of artifacts.
-- The stamping implementation WILL update `package.json` in-place when run locally (this is the agreed project behavior). If the team later decides to avoid mutating the working tree, they should create a follow-up to change the stamping implementation to produce a packaging-only manifest instead.
+# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+backend/
+├── src/
+│   ├── models/
+│   ├── services/
+│   └── api/
+└── tests/
 
-## Tooling & docs moved from spec.md (2025-09-28)
+frontend/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   └── services/
+└── tests/
 
-The detailed tooling notes that were previously in `spec.md` are moved here so the spec remains user-focused. Implementers and reviewers should consult this plan note for reference.
+# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
+api/
+└── [same as backend above]
 
-- Scripts added (implementation notes):
-	- `version-stamp` (`node ./scripts/version-stamp.js`) — apply prerelease suffixes on feature branches and write `dist/version-stamp.json`.
-	- `test` -> `vitest run` and `test:ci` for CI-friendly run.
-	- `release:prepare` -> `standard-version` to generate changelog and bump versions (manual publish still required).
-	- `prepare` -> `husky install` to ensure commit hooks are installed.
+ios/ or android/
+└── [platform-specific structure: feature modules, UI flows, platform tests]
+```
 
-- Dev dependencies added (implementation notes): `vitest`, `@vitest/ui`, `standard-version`, `husky`, `@commitlint/*`, `@testing-library/svelte`, `@testing-library/jest-dom`, plus a couple of build helpers. Jest-related packages were removed and tests now run under Vitest.
+**Structure Decision**: Keep feature artifacts colocated under `specs/002-version-release-and/`. Implementation code will live under `scripts/` (e.g., `scripts/version-stamp.js`) with small helpers under `lib/` (e.g., `lib/sanitize-branch.js`). Tests for stamping will be under `tests/unit/` and `tests/integration/` using Vitest.
 
-- Files added/updated (implementation notes):
-	- `scripts/version-stamp.js` — lightweight stamp script.
-	- `docs/versioning.md` — how and why to run the stamp and release prepare steps.
-	- `tests/TESTING_GUIDE.md`, `Svelte_Vitest_Testing_Investigation.md` and related docs updated to prefer Vitest and document the `@testing-library/jest-dom` matcher setup.
-	- `CHANGELOG.md` updated with an Unreleased note describing the migration to Vitest.
+## Phase 0: Outline & Research
 
-Notes (moved verbatim):
- - These changes make stamping automatic: build scripts and CI should run the `version-stamp` step as part of artifact creation. Publishing remains manual; stamping alone does not publish artifacts.
- - The stamp script may still mutate `package.json` in-place on feature branches; teams may prefer an implementation that writes a temporary package manifest for packaging to avoid dirtying the working tree in CI.
- - A follow-up issue `ISSUE_CI_VERSION_STAMP.md` should now be used to track enabling stamping in CI and any required credentials or job configuration.
+1. **Extract unknowns from Technical Context** above:
+   - For each NEEDS CLARIFICATION → research task
+   - For each dependency → best practices task
+   - For each integration → patterns task
+
+2. **Generate and dispatch research agents**:
+
+   ```
+   For each unknown in Technical Context:
+     Task: "Research {unknown} for {feature context}"
+   For each technology choice:
+     Task: "Find best practices for {tech} in {domain}"
+   ```
+
+3. **Consolidate findings** in `research.md` using format:
+   - Decision: [what was chosen]
+   - Rationale: [why chosen]
+   - Alternatives considered: [what else evaluated]
+
+**Output**: research.md with all NEEDS CLARIFICATION resolved
+
+## Phase 1: Design & Contracts
+
+_Prerequisites: research.md complete_
+
+1. **Extract entities from feature spec** → `data-model.md`:
+   - Entity name, fields, relationships
+   - Validation rules from requirements
+   - State transitions if applicable
+
+2. **Generate API contracts** from functional requirements:
+   - For each user action → endpoint
+   - Use standard REST/GraphQL patterns
+   - Output OpenAPI/GraphQL schema to `/contracts/`
+
+3. **Generate contract tests** from contracts:
+   - One test file per endpoint
+   - Assert request/response schemas
+   - Tests must fail (no implementation yet)
+
+4. **Extract test scenarios** from user stories:
+   - Each story → integration test scenario
+   - Quickstart test = story validation steps
+
+5. **Update agent file incrementally** (O(1) operation):
+   - Run `.specify/scripts/powershell/update-agent-context.ps1 -AgentType copilot`
+     **IMPORTANT**: Execute it exactly as specified above. Do not add or remove any arguments.
+   - If exists: Add only NEW tech from current plan
+   - Preserve manual additions between markers
+   - Update recent changes (keep last 3)
+   - Keep under 150 lines for token efficiency
+   - Output to repository root
+
+**Output**: data-model.md, /contracts/\*, failing tests, quickstart.md, agent-specific file
+
+## Phase 2: Task Planning Approach
+
+_This section describes what the /tasks command will do - DO NOT execute during /plan_
+
+**Task Generation Strategy**:
+
+- Load `.specify/templates/tasks-template.md` as base
+- Generate tasks from Phase 1 design docs (contracts, data model, quickstart)
+- Each contract → contract test task [P]
+- Each entity → model creation task [P]
+- Each user story → integration test task
+- Implementation tasks to make tests pass
+
+**Ordering Strategy**:
+
+- TDD order: Tests before implementation
+- Dependency order: Models before services before UI
+- Mark [P] for parallel execution (independent files)
+
+**Estimated Output**: 25-30 numbered, ordered tasks in tasks.md
+
+**IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
+
+## Phase 3+: Future Implementation
+
+_These phases are beyond the scope of the /plan command_
+
+**Phase 3**: Task execution (/tasks command creates tasks.md)  
+**Phase 4**: Implementation (execute tasks.md following constitutional principles)  
+**Phase 5**: Validation (run tests, execute quickstart.md, performance validation)
+
+## Complexity Tracking
+
+_Fill ONLY if Constitution Check has violations that must be justified_
+
+| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
+| -------------------------- | ------------------ | ------------------------------------ |
+| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |
+
+## Progress Tracking
+
+_This checklist is updated during execution flow_
+
+**Phase Status**:
+
+- [ ] Phase 0: Research complete (/plan command)
+- [ ] Phase 1: Design complete (/plan command)
+- [ ] Phase 2: Task planning complete (/plan command - describe approach only)
+- [ ] Phase 3: Tasks generated (/tasks command)
+- [ ] Phase 4: Implementation complete
+- [ ] Phase 5: Validation passed
+
+**Gate Status**:
+
+- [ ] Initial Constitution Check: PASS
+- [ ] Post-Design Constitution Check: PASS
+- [ ] All NEEDS CLARIFICATION resolved
+- [ ] Complexity deviations documented
+
+## Artifacts generated by this run
+
+- `E:\twain-shade\specs\002-version-release-and\spec.md` (feature spec with clarifications)
+- `E:\twain-shade\specs\002-version-release-and\research.md` (Phase 0 findings; semver notes added)
+- `E:\twain-shade\specs\002-version-release-and\data-model.md` (stamp metadata schema)
+- `E:\twain-shade\specs\002-version-release-and\plan.md` (this file)
+- `E:\twain-shade\specs\002-version-release-and\tasks.md` (task list created)
+
+---
+
+_Based on Constitution v2.1.1 - See `/memory/constitution.md`_

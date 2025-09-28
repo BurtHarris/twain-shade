@@ -26,6 +26,9 @@
   "author": "",
   "license": "ISC",
   "type": "module",
+  "dependencies": {
+    "semver": "^7.7.2"
+  },
   "devDependencies": {
     "@babel/preset-env": "^7.28.3",
     "@babel/preset-typescript": "^7.27.1",
