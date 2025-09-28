@@ -76,7 +76,7 @@ A user wants to release a new version of the extension and ensure it has a disti
 - **FR-002**: System MUST update the extension's version metadata upon release.
 - **FR-003**: System MUST allow users to provide or select a custom icon for the extension.
 - **FR-004**: System MUST display the selected icon in the extension interface and package.
-- **FR-005**: System MUST validate the icon format before accepting it. Only SVG format is supported.
+- **FR-005**: System MUST validate that an icon is provided and that it uses a supported image format (e.g., svg, png, ico) before accepting it.
 - **FR-006**: System MUST prevent duplicate or conflicting version releases by blocking the release and showing an error message.
 - **FR-011**: System MUST NOT automatically publish releases to the Marketplace or other registries. After the release workflow prepares artifacts, publishing is a manual, explicit step performed by the user (or an operator) outside the automated release action.
 
@@ -95,7 +95,7 @@ This subsection describes the steps the system performs when a user initiates a 
    - The webview Release button triggers the release workflow which:
      - Generates or updates `package.json` version metadata with the new version string (including pre-release suffix when on feature branches).
      - Builds webview assets and collects extension packaging files into a `dist/` release directory.
-     - Validates the selected icon is a well-formed SVG and copies it into the release assets.
+   - Validates the selected icon is a supported image format (e.g., svg, png, ico) and copies it into the release assets.
      - Produces a release manifest file (e.g., `dist/release-manifest.json`) containing version, changelog pointer, and artifact paths.
 
 2. Validate artifacts (automated checks):
