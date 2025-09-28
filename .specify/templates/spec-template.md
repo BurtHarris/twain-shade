@@ -92,6 +92,7 @@ When creating this spec from a user prompt:
 - [ ] Focused on user value and business needs
 - [ ] Written for non-technical stakeholders
 - [ ] All mandatory sections completed
+ - [ ] Module System (if repository is ESM-only): spec must not mandate CommonJS or mixed-format artifacts
 
 ### Requirement Completeness
 - [ ] No [NEEDS CLARIFICATION] markers remain

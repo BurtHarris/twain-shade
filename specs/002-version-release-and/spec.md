@@ -14,6 +14,10 @@
 + Q: What should happen if a user tries to release a version that already exists or conflicts with an existing version? → A: Block the release and show an error
 - Q: What icon formats should be supported for the extension? → A: svg
 
+### Session 2025-09-27
+- Q: How is a version release initiated? → A: From the VS Code extension UI (webview) — user clicks a Release button inside VS Code
+ - Q: Should publishing be automated (CI) or manual? → A: Manual for now, not ready to publish
+
 ## Execution Flow (main)
 ```
 1. Parse user description from Input
@@ -39,10 +43,10 @@
 ## User Scenarios & Testing *(mandatory)*
 
 ### Primary User Story
-A user wants to release a new version of the extension and ensure it has a distinct icon for identification.
+A user wants to release a new version of the extension and ensure it has a distinct icon for identification. The user initiates the release by clicking a "Release" button in the extension's webview (Theme Editor).
 
 ### Acceptance Scenarios
-1. **Given** the extension is ready for release, **When** the user initiates the version release process, **Then** the system should update the version and prepare release assets.
+1. **Given** the extension is ready for release, **When** the user clicks the "Release" button in the extension's webview, **Then** the system should update the version and prepare release assets.
 2. **Given** the extension lacks a custom icon, **When** the user provides or selects an icon, **Then** the system should display the icon in the extension interface and package.
 
 ### Edge Cases
@@ -56,16 +60,51 @@ A user wants to release a new version of the extension and ensure it has a disti
 - **FR-009**: System SHOULD bump the extension version when preparing for debugging to ensure VS Code reloads the extension correctly.
 - **FR-008**: System SHOULD update the patch level on each build to aid debugging and traceability.
 - **FR-007**: When working in a feature branch, the system MUST enforce version numbers to include a pre-release suffix (e.g., 1.2.3-beta).
-- **FR-001**: System MUST allow users to initiate a version release for the extension.
+- **FR-001**: System MUST allow users to initiate a version release for the extension via the VS Code extension UI (webview). A prominent "Release" button in the webview MUST begin the release workflow.
 - **FR-002**: System MUST update the extension's version metadata upon release.
 - **FR-003**: System MUST allow users to provide or select a custom icon for the extension.
 - **FR-004**: System MUST display the selected icon in the extension interface and package.
 - **FR-005**: System MUST validate the icon format before accepting it. Only SVG format is supported.
 - **FR-006**: System MUST prevent duplicate or conflicting version releases by blocking the release and showing an error message.
+ - **FR-011**: System MUST NOT automatically publish releases to the Marketplace or other registries. After the release workflow prepares artifacts, publishing is a manual, explicit step performed by the user (or an operator) outside the automated release action.
 
 ### Key Entities
 - **Extension Version**: Represents the release version of the extension, including metadata such as version number, release date, and changelog.
 - **Extension Icon**: Represents the visual identifier for the extension, including file format, size, and usage locations.
+
+---
+
+## Release workflow (artifact preparation and manual publish)
+
+This subsection describes the steps the system performs when a user initiates a release from the extension webview, and the manual actions required to publish the prepared artifacts.
+
+1. Prepare artifacts (automated):
+   - The webview Release button triggers the release workflow which:
+     - Generates or updates `package.json` version metadata with the new version string (including pre-release suffix when on feature branches).
+     - Builds webview assets and collects extension packaging files into a `dist/` release directory.
+     - Validates the selected icon is a well-formed SVG and copies it into the release assets.
+     - Produces a release manifest file (e.g., `dist/release-manifest.json`) containing version, changelog pointer, and artifact paths.
+
+2. Validate artifacts (automated checks):
+   - Run local validation: schema checks on manifest, icon SVG validation, checksum verification of artifacts.
+   - If validation fails: surface errors in the webview and do NOT mark the release as prepared.
+
+3. Manual publish (explicit operator action):
+   - After artifacts are prepared and validated, the webview must present a clear "Artifacts prepared" state with a link/button to open the `dist/` folder in the OS file explorer.
+   - The user/operator is responsible for manually publishing the prepared artifacts (for example: using `vsce publish`, Marketplace UI, or other registry workflows). The system MUST NOT automatically publish to the Marketplace or any registry.
+   - Provide a short publish checklist in the webview and in `dist/README.md`:
+     - Confirm version is correct and unique
+     - Confirm changelog and release notes included
+     - Verify icon renders correctly in preview
+     - Run final smoke test locally (reload VS Code with extension)
+
+4. Post-publish (manual confirmation):
+   - Once the operator completes publication, they MUST confirm the publish in the webview which records the publish metadata (date, who published, registry URL) to the release manifest.
+
+Acceptance criteria for the workflow:
+- Artifacts are generated to `dist/` and pass validation before any publish step is allowed.
+- The webview shows explicit prepared/validated state and does not automatically trigger publish.
+- Manual publish steps are documented and discoverable in the webview and `dist/README.md`.
 
 ---
 

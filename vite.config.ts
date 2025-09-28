@@ -4,6 +4,8 @@ import VitePluginVSCode from '@tomjs/vite-plugin-vscode';
 import path from 'path';
 
 export default defineConfig({
+  // Top-level tsconfig option (used by some plugins) to avoid deprecated resolve.tsconfigFilename
+  tsconfig: path.resolve(__dirname, 'tsconfig.json'),
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),
@@ -22,7 +24,7 @@ export default defineConfig({
     VitePluginVSCode({
       recommended: true,
       extension: {
-  entry: 'src/extension/extension.ts',
+        entry: 'src/extension/extension.ts',
       }
     })
   ]

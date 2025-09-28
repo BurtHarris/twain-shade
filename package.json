@@ -1,6 +1,6 @@
 {
   "name": "twain-shade",
-  "version": "1.1.0-dev",
+  "version": "1.1.4-002-version-release-and",
   "description": "",
   "main": "dist/extension/extension.js",
   "engines": {
@@ -16,7 +16,7 @@
     "prepare": "husky install",
     "test": "vitest run",
     "test:ci": "vitest run --run --reporter dot",
-    "build": "node ./scripts/prebuild-version.js && vite build",
+  "build": "node ./scripts/check-duplicate-extensions.mjs && node ./scripts/prebuild-version.js && vite build",
     "dev": "vite",
     "watch": "vite build --watch"
   },

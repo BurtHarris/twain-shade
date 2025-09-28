@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as path from 'path';
 
 export function activateThemeEditorWebview(context: vscode.ExtensionContext) {
   context.subscriptions.push(
@@ -11,18 +10,18 @@ export function activateThemeEditorWebview(context: vscode.ExtensionContext) {
         {
           enableScripts: true,
           localResourceRoots: [
-            vscode.Uri.file(path.join(context.extensionPath, 'dist')),
-            vscode.Uri.file(path.join(context.extensionPath, 'src', 'components'))
-          ]
+                vscode.Uri.joinPath(context.extensionUri, 'dist'),
+                vscode.Uri.joinPath(context.extensionUri, 'src', 'components')
+              ]
         }
       );
 
-      const scriptUri = panel.webview.asWebviewUri(
-        vscode.Uri.file(path.join(context.extensionPath, 'dist', 'ThemeEditor.js'))
-      );
-      const styleUri = panel.webview.asWebviewUri(
-        vscode.Uri.file(path.join(context.extensionPath, 'dist', 'ThemeEditor.css'))
-      );
+          const scriptUri = panel.webview.asWebviewUri(
+            vscode.Uri.joinPath(context.extensionUri, 'dist', 'ThemeEditor.js')
+          );
+          const styleUri = panel.webview.asWebviewUri(
+            vscode.Uri.joinPath(context.extensionUri, 'dist', 'ThemeEditor.css')
+          );
 
       panel.webview.html = getWebviewContent(scriptUri, styleUri);
 

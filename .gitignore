@@ -42,6 +42,9 @@ coverage/
 *.map
 *.cjs
 *.mjs
+
+# Allow build helper check script
+!scripts/check-duplicate-extensions.js
 *.d.ts
 
 # Ignore extension dev/test artifacts
