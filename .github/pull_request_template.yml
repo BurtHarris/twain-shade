@@ -1,0 +1,38 @@
+name: Pull request
+description: Use this form to create a clear, machine-friendly pull request. Fill the fields below; they will help generate changelogs and link PRs to specs.
+title: "${{ inputs.type }}: ${{ inputs.summary }}"
+labels: []
+body:
+  - type: dropdown
+    id: type
+    attributes:
+      label: Type
+      description: Choose the kind of change this PR introduces.
+      options:
+        - feat
+        - fix
+        - docs
+        - chore
+        - test
+        - perf
+        - refactor
+  - type: input
+    id: summary
+    attributes:
+      label: Short summary
+      description: One-line summary used for the PR title.
+  - type: textarea
+    id: changelog
+    attributes:
+      label: Changelog entry
+      description: One-line user-facing changelog entry.
+  - type: input
+    id: spec
+    attributes:
+      label: Spec reference
+      description: Optional spec reference or URL.
+  - type: textarea
+    id: migration
+    attributes:
+      label: Migration steps
+      description: "Optional: if this change requires user migration, describe steps here."

@@ -1,6 +1,6 @@
 {
   "name": "twain-shade",
-  "version": "1.1.0-dev",
+  "version": "1.1.4-002-version-release-and",
   "description": "",
   "main": "dist/extension/extension.js",
   "engines": {
@@ -13,33 +13,51 @@
     "test": "tests"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "vite build",
+    "prepare": "husky install",
+    "version-stamp": "node ./scripts/version-stamp.js",
+    "test": "vitest run",
+    "test:ci": "vitest run --run --reporter dot",
+    "build": "node ./scripts/check-duplicate-extensions.js && node ./scripts/prebuild-version.js && vite build",
+    "release:prepare": "standard-version",
+    "dev": "vite",
     "watch": "vite build --watch"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
+  "dependencies": {
+    "proper-lockfile": "^4.1.2",
+    "semver": "^7.7.2"
+  },
   "devDependencies": {
+    "@babel/preset-env": "^7.28.3",
+    "@babel/preset-typescript": "^7.27.1",
+    "@commitlint/cli": "^17.6.0",
+    "@commitlint/config-conventional": "^17.6.0",
     "@eslint/js": "^9.36.0",
     "@sveltejs/vite-plugin-svelte": "^6.2.1",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/svelte": "^5.2.8",
     "@tomjs/vite-plugin-vscode": "^5.0.0",
     "@tomjs/vscode": "^2.5.0",
     "@types/node": "^24.5.2",
     "@types/vscode": "^1.104.0",
+    "@vitest/ui": "^3.2.4",
     "@vscode/vsce": "^3.6.2",
     "eslint": "^9.36.0",
-    "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-svelte": "^3.12.4",
     "globals": "^16.4.0",
+    "husky": "^8.0.0",
     "jiti": "^2.6.0",
     "prettier": "^3.6.2",
+    "standard-version": "^9.5.0",
     "svelte": "^5.39.6",
     "svelte-check": "^4.3.2",
     "svelte-language-server": "^0.17.20",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.44.1",
-    "vite": "^7.1.7"
-  } 
+    "vite": "^7.1.7",
+    "vitest": "^3.2.4"
+  }
 }

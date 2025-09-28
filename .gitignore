@@ -1,7 +1,8 @@
+# Ignore build artifacts and local tooling outputs
+dist/
+
 # Node.js
 node_modules/
-dist/
-build/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -11,7 +12,9 @@ yarn-error.log*
 *.tsbuildinfo
 
 # VS Code
-.vscode/
+# We track `.vscode/` in this repo (launch configs, recommended workspace settings).
+# Some tools add machine-specific files here; keep only checked-in usage (launch.json)
+!/.vscode/
 
 # Extension packaging
 *.vsix
@@ -23,7 +26,7 @@ Thumbs.db
 # Tests
 coverage/
 
-# Misc
+# Environment files
 .env
 *.env.local
 *.env.development.local
@@ -36,13 +39,25 @@ coverage/
 # Ignore output from Prettier
 .prettier*
 
-# Ignore compiled files
-*.js
-*.jsx
+# Source maps are generated artifacts that can expose original sources; ignore in VCS
+# Prefer uploading maps as CI artifacts or storing them per-build for debugging instead
 *.map
-*.cjs
-*.mjs
+
+# Allow build helper check script
+!scripts/check-duplicate-extensions.js
+
+# Type declarations (we allow the project's shim explicitly below)
 *.d.ts
 
 # Ignore extension dev/test artifacts
 *.code-workspace
+
+# Ignore local temporary captures used during debugging/tests
+.tmp/
+
+# Ignore artifacts from the local version-stamp tooling
+.version-stamp/
+package.json.bak*
+
+# Allow this project's Svelte shim file (we ignore other .d.ts files globally)
+!src/types/shims-svelte.d.ts
