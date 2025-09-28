@@ -1,10 +1,10 @@
-
 # Implementation Plan: [FEATURE]
 
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
 **Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
 
 ## Execution Flow (/plan command scope)
+
 ```
 1. Load feature spec from Input path
    → If not found: ERROR "No feature spec at {path}"
@@ -27,13 +27,16 @@
 ```
 
 **IMPORTANT**: The /plan command STOPS at step 7. Phases 2-4 are executed by other commands:
+
 - Phase 2: /tasks command creates tasks.md
 - Phase 3-4: Implementation execution (manual or via tools)
 
 ## Summary
+
 [Extract from feature spec: primary requirement + technical approach from research]
 
 ## Technical Context
+
 **Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]  
 **Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]  
 **Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
@@ -45,13 +48,15 @@
 **Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 [Gates determined based on constitution file]
 
 ## Project Structure
 
 ### Documentation (this feature)
+
 ```
 specs/[###-feature]/
 ├── plan.md              # This file (/plan command output)
@@ -63,12 +68,14 @@ specs/[###-feature]/
 ```
 
 ### Source Code (repository root)
+
 <!--
   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
   for this feature. Delete unused options and expand the chosen structure with
   real paths (e.g., apps/admin, packages/something). The delivered plan must
   not include Option labels.
 -->
+
 ```
 # [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 src/
@@ -109,12 +116,14 @@ ios/ or android/
 directories captured above]
 
 ## Phase 0: Outline & Research
+
 1. **Extract unknowns from Technical Context** above:
    - For each NEEDS CLARIFICATION → research task
    - For each dependency → best practices task
    - For each integration → patterns task
 
 2. **Generate and dispatch research agents**:
+
    ```
    For each unknown in Technical Context:
      Task: "Research {unknown} for {feature context}"
@@ -130,7 +139,8 @@ directories captured above]
 **Output**: research.md with all NEEDS CLARIFICATION resolved
 
 ## Phase 1: Design & Contracts
-*Prerequisites: research.md complete*
+
+_Prerequisites: research.md complete_
 
 1. **Extract entities from feature spec** → `data-model.md`:
    - Entity name, fields, relationships
@@ -160,12 +170,14 @@ directories captured above]
    - Keep under 150 lines for token efficiency
 
    ### Source Code (repository root)
+
    <!--
       ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
       for this feature. Delete unused options and expand the chosen structure with
       real paths (e.g., apps/admin, packages/something). The delivered plan must
       not include Option labels.
    -->
+
    ```
    # [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
    src/
@@ -178,33 +190,36 @@ directories captured above]
    ├── contract/
    ├── integration/
    └── unit/
-
+   ```
 
 **Phase Status**:
 
-   # [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-   backend/
-   ├── src/
-   │   ├── models/
-   │   ├── services/
-   │   └── api/
-   └── tests/
+# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
 
-   frontend/
-   ├── src/
-   │   ├── components/
-   │   ├── pages/
-   │   └── services/
-   └── tests/
+backend/
+├── src/
+│ ├── models/
+│ ├── services/
+│ └── api/
+└── tests/
 
-   # [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-   api/
-   └── [same as backend above]
+frontend/
+├── src/
+│ ├── components/
+│ ├── pages/
+│ └── services/
+└── tests/
 
-   ios/ or android/
-   └── [platform-specific structure: feature modules, UI flows, platform tests]
-   ```
-   All source and test files use TypeScript and modern JavaScript modules. `.mjs` and `.mts` files are forbidden.
+# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
+
+api/
+└── [same as backend above]
+
+ios/ or android/
+└── [platform-specific structure: feature modules, UI flows, platform tests]
+
+```
+All source and test files use TypeScript and modern JavaScript modules. `.mjs` and `.mts` files are forbidden.
 - [ ] Phase 0: Research complete (/plan command)
 - [ ] Phase 1: Design complete (/plan command)
 - [ ] Phase 2: Task planning complete (/plan command - describe approach only)
@@ -220,3 +235,4 @@ directories captured above]
 
 ---
 *Based on Constitution v2.1.1 - See `/memory/constitution.md`*
+```

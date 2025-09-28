@@ -16,7 +16,7 @@
     "prepare": "husky install",
     "test": "vitest run",
     "test:ci": "vitest run --run --reporter dot",
-  "build": "node ./scripts/check-duplicate-extensions.js && node ./scripts/prebuild-version.js && vite build",
+    "build": "node ./scripts/check-duplicate-extensions.js && node ./scripts/prebuild-version.js && vite build",
     "dev": "vite",
     "watch": "vite build --watch"
   },

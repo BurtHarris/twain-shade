@@ -1,2 +1,2 @@
 // Test setup: add testing-library DOM matchers
-import '@testing-library/jest-dom';
+import "@testing-library/jest-dom";

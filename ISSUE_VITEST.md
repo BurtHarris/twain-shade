@@ -40,23 +40,25 @@ Thanks for any pointers — happy to attach failing logs or create a minimal rep
 ## Minimal config used (important bits)
 
 `vitest.config.ts`
+
 ```ts
-import { defineConfig } from 'vitest/config'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { svelteTesting } from '@testing-library/svelte/vite'
+import { defineConfig } from "vitest/config";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { svelteTesting } from "@testing-library/svelte/vite";
 
 export default defineConfig({
   plugins: [svelte(), svelteTesting()],
   test: {
-    environment: 'jsdom',
-    setupFiles: ['tests/setupTests.ts']
-  }
-})
+    environment: "jsdom",
+    setupFiles: ["tests/setupTests.ts"],
+  },
+});
 ```
 
 `tests/setupTests.ts`
+
 ```ts
-import '@testing-library/jest-dom'
+import "@testing-library/jest-dom";
 ```
 
 ## Steps to reproduce
@@ -113,4 +115,4 @@ Error: lifecycle_function_unavailable — "mount(...) is not available on the se
   at Object.mount (node_modules/svelte/src/runtime/server/index.js)
   at render (node_modules/@testing-library/svelte/dist/index.cjs.js)
   at Object.<anonymous> (tests/unit/ThemeEditor.test.js:15)
-``` 
+```

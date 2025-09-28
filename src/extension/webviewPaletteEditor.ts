@@ -1,27 +1,33 @@
-import * as vscode from 'vscode';
-import * as path from 'path';
+import * as vscode from "vscode";
+import * as path from "path";
 
 export function activatePaletteEditorWebview(context: vscode.ExtensionContext) {
   context.subscriptions.push(
-    vscode.commands.registerCommand('paletteEditor.open', () => {
+    vscode.commands.registerCommand("paletteEditor.open", () => {
       const panel = vscode.window.createWebviewPanel(
-        'paletteEditor',
-        'Palette Editor',
+        "paletteEditor",
+        "Palette Editor",
         vscode.ViewColumn.One,
         {
           enableScripts: true,
           localResourceRoots: [
-            vscode.Uri.file(path.join(context.extensionPath, 'dist')),
-            vscode.Uri.file(path.join(context.extensionPath, 'src', 'components'))
-          ]
-        }
+            vscode.Uri.file(path.join(context.extensionPath, "dist")),
+            vscode.Uri.file(
+              path.join(context.extensionPath, "src", "components"),
+            ),
+          ],
+        },
       );
 
       const scriptUri = panel.webview.asWebviewUri(
-        vscode.Uri.file(path.join(context.extensionPath, 'dist', 'PaletteEditor.js'))
+        vscode.Uri.file(
+          path.join(context.extensionPath, "dist", "PaletteEditor.js"),
+        ),
       );
       const styleUri = panel.webview.asWebviewUri(
-        vscode.Uri.file(path.join(context.extensionPath, 'dist', 'PaletteEditor.css'))
+        vscode.Uri.file(
+          path.join(context.extensionPath, "dist", "PaletteEditor.css"),
+        ),
       );
 
       panel.webview.html = getWebviewContent(scriptUri, styleUri);
@@ -32,14 +38,18 @@ export function activatePaletteEditorWebview(context: vscode.ExtensionContext) {
       // - colorCustomizations: from workbench.colorCustomizations (user/extension tweaks)
       // See ThemeEditor.svelte and main.ts for runtime handling and display.
       const sendThemeInfo = () => {
-        const config = vscode.workspace.getConfiguration('workbench');
-        const themeName = config.get('colorTheme') || 'Default';
-        const colorCustomizations = config.get('colorCustomizations') || {};
-        panel.webview.postMessage({ type: 'theme-info', name: themeName, customizations: colorCustomizations });
+        const config = vscode.workspace.getConfiguration("workbench");
+        const themeName = config.get("colorTheme") || "Default";
+        const colorCustomizations = config.get("colorCustomizations") || {};
+        panel.webview.postMessage({
+          type: "theme-info",
+          name: themeName,
+          customizations: colorCustomizations,
+        });
       };
       // Send theme info after a short delay to ensure webview is ready
       setTimeout(sendThemeInfo, 300);
-    })
+    }),
   );
 }
 

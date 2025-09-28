@@ -3,6 +3,7 @@ about: Create a report to help us fix a bug
 title: ""
 labels: bug
 assignees: []
+
 ---
 
 **Short description**
@@ -11,9 +12,9 @@ What went wrong? Please provide a one-line summary.
 
 **Steps to reproduce**
 
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 **Expected behavior**
 
@@ -25,10 +26,10 @@ What actually happened? Include error messages, stack traces, or screenshots.
 
 **Environment**
 
-- OS: 
-- Node (if applicable): 
-- Browser (if applicable): 
-- Commit/branch: 
+- OS:
+- Node (if applicable):
+- Browser (if applicable):
+- Commit/branch:
 
 **Minimal repro / sample**
 

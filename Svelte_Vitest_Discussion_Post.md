@@ -33,45 +33,47 @@ In this troubleshooting, I applied the following to work around the issue:
 - @testing-library/svelte: 5.2.8
 - @testing-library/jest-dom: 6.x
 
-
 ## Key config snippets (what we used)
 
 `vitest.config.ts`
+
 ```ts
-import { defineConfig } from 'vitest/config'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
-import { svelteTesting } from '@testing-library/svelte/vite'
-import path from 'path'
+import { defineConfig } from "vitest/config";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { svelteTesting } from "@testing-library/svelte/vite";
+import path from "path";
 
 export default defineConfig({
-  resolve: { alias: { '@': path.resolve(__dirname, 'src') } },
+  resolve: { alias: { "@": path.resolve(__dirname, "src") } },
   plugins: [svelte(), svelteTesting()],
   test: {
-    environment: 'jsdom',
+    environment: "jsdom",
     globals: true,
-    setupFiles: ['tests/setupTests.ts'],
-    include: ['tests/**/*.test.{js,ts}'],
+    setupFiles: ["tests/setupTests.ts"],
+    include: ["tests/**/*.test.{js,ts}"],
     testTransformMode: {
       web: [/\.svelte$/],
-      ssr: []
-    }
-  }
-})
+      ssr: [],
+    },
+  },
+});
 ```
 
 `tests/setupTests.ts`
+
 ```ts
-import '@testing-library/jest-dom'
+import "@testing-library/jest-dom";
 ```
 
 `vite.config.ts` (dev)
+
 ```ts
-import { defineConfig } from 'vite'
-import { svelte } from '@sveltejs/vite-plugin-svelte'
-import path from 'path'
+import { defineConfig } from "vite";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import path from "path";
 
 export default defineConfig({
-  resolve: { alias: { '@': path.resolve(__dirname, 'src') } },
-  plugins: [svelte()]
-})
+  resolve: { alias: { "@": path.resolve(__dirname, "src") } },
+  plugins: [svelte()],
+});
 ```

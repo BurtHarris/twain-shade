@@ -1,22 +1,22 @@
-import { defineConfig } from 'vite';
-import { svelte } from '@sveltejs/vite-plugin-svelte';
-import VitePluginVSCode from '@tomjs/vite-plugin-vscode';
-import path from 'path';
+import { defineConfig } from "vite";
+import { svelte } from "@sveltejs/vite-plugin-svelte";
+import VitePluginVSCode from "@tomjs/vite-plugin-vscode";
+import path from "path";
 
 export default defineConfig({
-  // Top-level tsconfig option (used by some plugins) to avoid deprecated resolve.tsconfigFilename
-  tsconfig: path.resolve(__dirname, 'tsconfig.json'),
+  // NOTE: previously set a top-level `tsconfig` here for some plugins; remove because
+  // `UserConfigExport` does not include `tsconfig` and it causes a type error.
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
+      "@": path.resolve(__dirname, "src"),
     },
   },
 
   build: {
-      rollupOptions: {
-    input: 'src/extension/extension.ts',
-        external: ['vscode'],
-      },
+    rollupOptions: {
+      input: "src/extension/extension.ts",
+      external: ["vscode"],
+    },
   },
 
   plugins: [
@@ -24,8 +24,8 @@ export default defineConfig({
     VitePluginVSCode({
       recommended: true,
       extension: {
-        entry: 'src/extension/extension.ts',
-      }
-    })
-  ]
+        entry: "src/extension/extension.ts",
+      },
+    }),
+  ],
 });
