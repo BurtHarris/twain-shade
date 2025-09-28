@@ -158,3 +158,25 @@ _Updated by main() during processing_
 ---
 
 - [ ] No implementation details (languages, frameworks, APIs)
+
+## Tooling & docs changes on this branch
+
+Summary of infrastructure and documentation edits implemented on `002-version-release-and` to support version stamping, testing, and contributor guidance:
+
+- Scripts added:
+   - `version-stamp` (`node ./scripts/version-stamp.js`) — apply prerelease suffixes on feature branches and write `dist/version-stamp.json`.
+   - `test` -> `vitest run` and `test:ci` for CI-friendly run.
+   - `release:prepare` -> `standard-version` to generate changelog and bump versions (manual publish still required).
+   - `prepare` -> `husky install` to ensure commit hooks are installed.
+
+- Dev dependencies added: `vitest`, `@vitest/ui`, `standard-version`, `husky`, `@commitlint/*`, `@testing-library/svelte`, `@testing-library/jest-dom`, plus a couple of build helpers. Jest-related packages were removed and tests now run under Vitest.
+
+- Files added/updated:
+   - `scripts/version-stamp.js` — lightweight stamp script.
+   - `docs/versioning.md` — how and why to run the stamp and release prepare steps.
+   - `tests/TESTING_GUIDE.md`, `Svelte_Vitest_Testing_Investigation.md` and related docs updated to prefer Vitest and document the `@testing-library/jest-dom` matcher setup.
+   - `CHANGELOG.md` updated with an Unreleased note describing the migration to Vitest.
+
+Notes:
+- These changes are intentionally conservative: publishing remains manual, stamp script mutates `package.json` only on feature branches, and `standard-version` is provided for changelog automation but not automatic publishing.
+- A follow-up issue `ISSUE_CI_VERSION_STAMP.md` defers adding a CI job to run stamping; CI automation is optional and deferred.

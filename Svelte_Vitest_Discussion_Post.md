@@ -1,3 +1,7 @@
+## Canonical test runner
+
+Vitest is the canonical test runner for this repository's testing recommendations. The notes below document troubleshooting steps and alternative workarounds, but please prefer Vitest for new tests.
+
 ## Question: Are `.svelte` files sometimes transformed to SSR during Vitest (jsdom) runs? (Svelte 5 + Vitest)
 
 I'm seeing Svelte components execute under the SSR/runtime path during Vitest tests even though the test environment is `jsdom`. Is this expected behavior or a misconfiguration? Specifically:

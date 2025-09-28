@@ -26,7 +26,7 @@ A modular TypeScript library and VS Code extension for managing color palettes t
 **Language/Version**: TypeScript (latest stable, ESM-only, all files use .js extension)  
 **Primary Dependencies**: VS Code Extension API, Node.js, (future: other host APIs)  
 **Storage**: VS Code settings, JSON file for palettes  
-**Testing**: VS Code Extension Dev Kit, Node.js unit tests, Jest (ESM, .js config and test files)  
+**Testing**: VS Code Extension Dev Kit, Node.js unit tests, Vitest (preferred)  
 **Target Platform**: VS Code (first), extensible to other desktop apps  
 **Project Type**: Single project, modular library + extension  
 **Performance Goals**: Instant UI feedback (<100ms), palette persistence  

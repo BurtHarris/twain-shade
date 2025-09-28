@@ -35,7 +35,7 @@ This document records the troubleshooting steps, findings, and remaining issues 
 - The error `lifecycle_function_unavailable` (`mount(...)` is not available on the server) occurs when Svelte tests run in SSR/server mode, even with `jsdom` configured.
 - No local code or config is forcing SSR; the issue is likely in the Svelte/Vitest integration for Svelte 5+.
 - Downgrading Svelte to v4.x is a known workaround, but not desired for this project.
-- Alternative test runners (e.g., Jest) may have better support for Svelte 5+ DOM testing.
+- Alternative test runners (e.g., Jest) may offer different tradeoffs; however Vitest is the recommended runner for Svelte 5+ in this project.
 
 ## Remaining Problem
 

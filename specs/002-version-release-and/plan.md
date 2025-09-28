@@ -42,7 +42,7 @@
 **Language/Version**: TypeScript, Svelte 5 (ESM-only, all files use .js extension)
 **Primary Dependencies**: Svelte 5, Vite
 **Storage**: N/A
-**Testing**: Vitest, Playwright (recommended), Jest (ESM, .js config and test files)
+**Testing**: Vitest, Playwright (recommended). Legacy Jest references removed; use Vitest unless you have a specific reason.
 **Target Platform**: VS Code Extension (desktop)
 **Project Type**: single (VS Code extension with webview)
 **Performance Goals**: Fast build and reload (<2s), smooth debugging

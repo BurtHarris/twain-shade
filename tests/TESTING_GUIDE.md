@@ -8,35 +8,30 @@ import ThemeEditor from '@/extension/webview/ThemeEditor.svelte';
 
 instead of using long relative paths. This is configured in `vite.config.ts` and `vitest.config.ts`.
 
-# Jest ESM Test File Instructions
+## ESM and testing in this project
 
-## What is ESM?
+ECMAScript Modules (ESM) is the modern JavaScript module system, using `import` and `export` syntax. ESM is the default in Node.js and this project uses ESM (`"type": "module"` in `package.json`).
 
-ECMAScript Modules (ESM) is the modern JavaScript module system, using `import` and `export` syntax. ESM is now the default in Node.js and many modern projects. In this project, all source, config, and test files use the `.js` extension with ESM syntax, and your `package.json` includes `"type": "module"`.
+Vitest is the recommended test runner here — it supports ESM and works well with Svelte and `@testing-library/svelte`. For DOM-style tests ensure the test environment is `jsdom` and load the `@testing-library/jest-dom` matchers via `tests/setupTests.ts` (these matchers work with Vitest).
 
-## Why does ESM matter for Jest?
+How to set up ESM and Svelte tests:
 
-Jest needs to know how to handle ESM files. In this project, all test files use the `.js` extension with ESM `import` syntax. Jest is configured to treat `.js` files as ESM modules, so you can use `import` statements in all test files. If Jest is not configured for ESM, you may see errors like `SyntaxError: Cannot use import statement outside a module`.
+- Use `.js` for ESM JavaScript tests and `.ts` for TypeScript tests.
+- Ensure `vitest.config.ts` is configured for `test.environment = 'jsdom'` and any Svelte transforms.
+- Document any testing setup in this guide.
 
--## How to set up ESM and Svelte tests
+Examples:
 
-- Use the `.js` extension for all config files and test files, and the `.ts` extension for TypeScript source and test files. TypeScript is allowed and encouraged throughout the project.
-- Ensure your Jest config (`jest.config.js`) is set up for ESM and Svelte transforms. No need for `extensionsToTreatAsEsm` if your `package.json` uses `"type": "module"`.
-- Document this in your project's testing or contribution guide.
+- `ThemeEditor.test.js` (ESM JavaScript)
+- `ThemeEditor.test.ts` (ESM TypeScript)
 
-## Example
+Common pitfalls:
 
-- `ThemeEditor.test.js` (for ESM JavaScript)
-- `ThemeEditor.test.ts` (for ESM TypeScript)
+- If you see `Cannot use import statement outside a module`, check that your runner is configured for ESM and that `package.json` includes `"type": "module"`.
 
-## Common Pitfalls
+Summary:
 
-- Using `.js` for ESM tests is correct in this project, as Jest is configured to treat `.js` files as ESM. `.ts` files are also allowed and encouraged for TypeScript. If you see import errors, check your Jest config and ensure Babel is set up for ESM.
-- Forgetting to update Jest config for ESM projects can cause transform issues.
-
-## Summary
-
-Always use the `.js` extension for JavaScript and `.ts` for TypeScript. For Svelte and TypeScript component tests, use Vitest with @testing-library/svelte. Jest is used for general JS/TS tests. This ensures smooth test execution and avoids common syntax errors.
+Always use the `.js` extension for JavaScript and `.ts` for TypeScript. Use Vitest + `@testing-library/svelte` for Svelte component tests and load jest-dom matchers for expressive assertions.
 
 # Svelte Component Testing
 
