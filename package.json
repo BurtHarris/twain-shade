@@ -13,6 +13,7 @@
     "test": "tests"
   },
   "scripts": {
+    "prepare": "husky install",
     "test": "vitest run",
     "test:ci": "vitest run --run --reporter dot",
     "build": "node ./scripts/prebuild-version.js && vite build",
@@ -24,6 +25,9 @@
   "license": "ISC",
   "type": "module",
   "devDependencies": {
+    "@commitlint/config-conventional": "^17.6.0",
+    "@commitlint/cli": "^17.6.0",
+    "husky": "^8.0.0",
     "@babel/preset-env": "^7.28.3",
     "@babel/preset-typescript": "^7.27.1",
     "@eslint/js": "^9.36.0",
