@@ -51,4 +51,4 @@ coverage/
 .tmp/
 
 # Allow this project's Svelte shim file (we ignore other .d.ts files globally)
-!src/shims-svelte.d.ts
+!src/types/shims-svelte.d.ts

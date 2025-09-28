@@ -45,5 +45,5 @@
       "@/*": ["src/*"]
     }
     },
-  "include": ["src", "src/shims-svelte.d.ts"]
+  "include": ["src", "src/types/shims-svelte.d.ts"]
 }
