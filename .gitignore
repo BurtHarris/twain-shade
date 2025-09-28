@@ -11,7 +11,9 @@ yarn-error.log*
 *.tsbuildinfo
 
 # VS Code
-.vscode/
+# We track `.vscode/` in this repo (launch configs, recommended workspace settings).
+# Some tools add machine-specific files here; keep only checked-in usage (launch.json)
+!/.vscode/
 
 # Extension packaging
 *.vsix
