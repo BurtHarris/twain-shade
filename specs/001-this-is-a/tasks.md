@@ -1,4 +1,4 @@
-# Tasks: Color Palette State Indicator for VS Code
+# Tasks: Color Theme State Indicator for VS Code
 
 **Input**: Design documents from `E:\twain-shade\specs\001-this-is-a\`
 **Prerequisites**: plan.md, research.md, data-model.md, contracts/
@@ -11,31 +11,31 @@
 
 ## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
 
-- [ ] T004 [P] Contract test for palette creation in tests/contract/test_palette_create.ts
-- [ ] T005 [P] Contract test for palette editing in tests/contract/test_palette_edit.ts
-- [ ] T006 [P] Contract test for palette preview/commit/cancel in tests/contract/test_palette_commit.ts
+- [ ] T004 [P] Contract test for theme creation in tests/contract/test_theme_create.ts
+- [ ] T005 [P] Contract test for theme editing in tests/contract/test_theme_edit.ts
+- [ ] T006 [P] Contract test for theme preview/commit/cancel in tests/contract/test_theme_commit.ts
 - [ ] T007 [P] Integration test for live preview in tests/integration/test_live_preview.ts
 - [ ] T008 [P] Integration test for accessibility validation in tests/integration/test_accessibility.ts
-- [ ] T009 [P] Integration test for versioning and rollback in tests/integration/test_versioning.ts
+ 
 
 ## Phase 3.3: Core Implementation (ONLY after tests are failing)
 
-- [ ] T010 [P] Implement Palette model in src/models/palette.ts
+- [ ] T010 [P] Implement Theme model in src/models/theme.ts
 - [ ] T011 [P] Implement State model in src/models/state.ts
-- [ ] T012 [P] Implement PaletteEditor UI in src/extension/paletteEditor.tsx
-- [ ] T013 Implement palette service for color generation and persistence in src/services/paletteService.ts
+- [ ] T012 [P] Implement ThemeEditor UI in src/extension/themeEditor.tsx
+- [ ] T013 Implement theme service for color generation and persistence in src/services/themeService.ts
 - [ ] T014 Implement extension entry point and command registration in src/extension/extension.ts
 
 ## Phase 3.4: Integration
 
-- [ ] T015 Integrate palette service with VS Code settings and storage
+- [ ] T015 Integrate theme service with VS Code settings and storage
 - [ ] T016 Integrate accessibility validation and error handling
-- [ ] T017 Integrate versioning and rollback logic
+ 
 - [ ] T018 Integrate live preview updates with VS Code window trim/status bar
 
 ## Phase 3.5: Polish
 
-- [ ] T019 [P] Unit tests for palette service in tests/unit/test_paletteService.ts
+- [ ] T019 [P] Unit tests for theme service in tests/unit/test_themeService.ts
 - [ ] T020 [P] Unit tests for color generation logic in tests/unit/test_colorGeneration.ts
 - [ ] T021 [P] Update documentation and quickstart in docs/quickstart.md
 - [ ] T022 Performance tests for UI responsiveness (<100ms) in tests/unit/test_performance.ts
@@ -66,3 +66,6 @@ Task: "Integration test for versioning and rollback in tests/integration/test_ve
 - Verify tests fail before implementing
 - Commit after each task
 - Avoid: vague tasks, same file conflicts
+
+Deferred modeling note:
+- Do not formalize a separate `Swatch` type at this time. Use simple color entries (id, name, color, role) inside `Theme` objects. Formal `Swatch` modeling (with rich derived metadata) is deferred to a future enhancement once the basic theme flows are implemented and validated.

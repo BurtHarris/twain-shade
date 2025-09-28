@@ -1,3 +1,27 @@
+```markdown
+# Tasks: Version Release & Branch Stamping
+
+**Input**: specs/002-version-release-and/
+
+## Phase 1: Tests First (TDD)
+
+- [ ] V001 Integration test for versioning and rollback in tests/integration/test_versioning.ts
+
+## Phase 2: Implementation
+
+- [ ] V002 Implement version stamping script for feature branches (scripts/version-stamp.js)
+- [ ] V003 Add CI job to validate pre-release version stamps on feature branches
+- [ ] V004 Implement rollback and release tagging workflow
+
+## Phase 3: Docs & Automation
+
+- [ ] V005 Document pre-release stamping instructions in docs/versioning.md
+- [ ] V006 Ensure CHANGELOG automation integrates with stamping tools
+
+Notes:
+- This feature automates pre-release version stamps for feature branches to aid debugging and ensure unique extension builds.
+
+```
 # Tasks: Version Release and Icon Feature
 
 ## Phase 2: Implementation Tasks
